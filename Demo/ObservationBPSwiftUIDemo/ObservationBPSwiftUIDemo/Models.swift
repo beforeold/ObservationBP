@@ -13,6 +13,8 @@ import SwiftUI
     var name: String
     var age: Int
     var list: [String] = []
+    var testGet: String? = UUID().uuidString
+    let testGet2: String = UUID().uuidString
 
     deinit {
         print("Person deinit: \(name)")

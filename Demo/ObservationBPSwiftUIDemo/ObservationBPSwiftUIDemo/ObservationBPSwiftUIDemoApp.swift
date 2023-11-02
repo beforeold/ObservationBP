@@ -31,6 +31,8 @@ struct Page1: View {
                 .padding()
             NavigationLink(destination: ContentViewC()) { Text("ObservingView") }
                 .padding()
+            NavigationLink(destination: ObservedObjectTest()) { Text("ObservedObjectTest") }
+                .padding()
 
             if #available(iOS 17.0, *) {
                 NavigationLink(destination: ContentViewD()) { Text("iOS17 @Observation") }
