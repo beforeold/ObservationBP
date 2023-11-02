@@ -22,11 +22,13 @@ public struct Observing<Value: AnyObject>: DynamicProperty {
         get {
             ensureStorageValue()
             if !storage.tracker.isRunning {
-                storage.tracker.start {
-                    Task { @MainActor in
-                        let new = Storage<Value>()
-                        new.value = storage.value
-                        storage = new
+                storage.tracker.start { [weak storage] in
+                    if let storage {
+                        Task { @MainActor in
+                            let new = Storage<Value>()
+                            new.value = storage.value
+                            self.storage = new
+                        }
                     }
                 }
                 DispatchQueue.main.async { [weak storage] in
@@ -38,9 +40,9 @@ public struct Observing<Value: AnyObject>: DynamicProperty {
     }
 
     @MainActor
-    public var projectedValue: Wrapper {
+    public var projectedValue: Bindable {
         ensureStorageValue()
-        return Wrapper(storage: storage)
+        return Bindable(storage: storage)
     }
 
     public init(wrappedValue: @autoclosure @escaping () -> Value) {
@@ -66,7 +68,7 @@ extension Observing: Equatable {
 
 public extension Observing {
     @dynamicMemberLookup
-    struct Wrapper {
+    struct Bindable {
         private let storage: Storage<Value>
 
         fileprivate init(storage: Storage<Value>) {
@@ -112,8 +114,9 @@ private final class Tracker {
         isRunning = true
         self.onChange = onChange
 
-        if let previousTracker {
-            previousTracker.close()
+        if let previous = previousTracker, previous !== self {
+            previous.close()
+            previousTracker = nil
         }
 
         withUnsafeMutablePointer(to: &accessList) { ptr in
