@@ -32,10 +32,10 @@ import SwiftUI
     }
 }
 
-struct RrefreshScrollTestView: ObservationView {
+struct RrefreshScrollTestView: View {
     @State private var wrapper = ListWrapper()
 
-    var observationBody: some View {
+    var body: some View {
         ZStack {
             Color.green
 
@@ -103,10 +103,10 @@ struct RrefreshScrollTestView: ObservationView {
     }
 }
 
-private struct ConstView: ObservationView {
+private struct ConstView: View {
     @State var wrapper: ListWrapper
 
-    var observationBody: some View {
+    var body: some View {
         if #available(iOS 15.0, *) {
             let _ = Self._printChanges()
         }

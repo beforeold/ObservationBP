@@ -8,7 +8,7 @@
 import ObservationBP
 import SwiftUI
 
-struct ContentViewA: ObservationView {
+struct ContentViewA: View {
     private var person = Person(name: "Tom", age: 12)
     @StateObject private var ref = Ref()
     @State private var randomColor = Color(
@@ -17,7 +17,7 @@ struct ContentViewA: ObservationView {
         blue: .random(in: 0 ... 1)
     )
 
-    var observationBody: some View {
+    var body: some View {
         if #available(iOS 15.0, *) {
             let _ = Self._printChanges()
         }
@@ -44,7 +44,7 @@ struct ContentViewA: ObservationView {
 }
 
 // @ObservationView
-private struct PersonNameView: ObservationView {
+private struct PersonNameView: View {
     @State private var person: Person
     @State private var clz = Clz(name: UUID().uuidString.components(separatedBy: "-")[0])
     @StateObject private var obClz = OBClz(name: UUID().uuidString.components(separatedBy: "-")[0])
@@ -53,7 +53,7 @@ private struct PersonNameView: ObservationView {
         self.person = person
     }
 
-    var observationBody: some View {
+    var body: some View {
         if #available(iOS 15.0, *) {
             let _ = Self._printChanges()
         }
@@ -65,13 +65,13 @@ private struct PersonNameView: ObservationView {
     }
 }
 
-private struct PersonAgeView: ObservationView {
+private struct PersonAgeView: View {
     @State private var person: Person
     fileprivate init(person: Person) {
         self.person = person
     }
 
-    var observationBody: some View {
+    var body: some View {
         if #available(iOS 15.0, *) {
             let _ = Self._printChanges()
         }

@@ -18,7 +18,7 @@ struct ContentViewC: View {
     )
 
     var body: some View {
-        _$ObservingView {
+        Group {
             if #available(iOS 15.0, *) {
                 let _ = Self._printChanges()
             }
@@ -54,7 +54,7 @@ private struct PersonNameView: View {
     }
 
     var body: some View {
-        _$ObservingView {
+        Group {
             if #available(iOS 15.0, *) {
                 let _ = Self._printChanges()
             }
@@ -71,7 +71,7 @@ private struct PersonAgeView: View {
 
     var body: some View {
         if Bool.random() {
-            _$ObservingView {
+            Group {
                 if #available(iOS 15.0, *) {
                     let _ = Self._printChanges()
                 }
@@ -79,7 +79,7 @@ private struct PersonAgeView: View {
                     .background(Color.red)
             }
         } else {
-            _$ObservingView {
+            Group {
                 if #available(iOS 15.0, *) {
                     let _ = Self._printChanges()
                 }

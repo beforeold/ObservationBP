@@ -24,7 +24,6 @@
 		F79817DA2AEF93B1008A7E34 /* RrefreshScrollTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79817D92AEF93B1008A7E34 /* RrefreshScrollTestView.swift */; };
 		F7DD7F572AE28226009A5625 /* ObservationBP in Frameworks */ = {isa = PBXBuildFile; productRef = F7DD7F562AE28226009A5625 /* ObservationBP */; };
 		F7F2FA3F2AF381A200C258D4 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2FA3E2AF3819E00C258D4 /* LazyView.swift */; };
-		F7F2FA422AF3895500C258D4 /* Observing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2FA412AF3895500C258D4 /* Observing.swift */; };
 		F7F2FA442AF39D2900C258D4 /* ObservedObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2FA432AF39D2900C258D4 /* ObservedObjectTest.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,7 +66,6 @@
 		F79817D72AEF9236008A7E34 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		F79817D92AEF93B1008A7E34 /* RrefreshScrollTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RrefreshScrollTestView.swift; sourceTree = "<group>"; };
 		F7F2FA3E2AF3819E00C258D4 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
-		F7F2FA412AF3895500C258D4 /* Observing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observing.swift; sourceTree = "<group>"; };
 		F7F2FA432AF39D2900C258D4 /* ObservedObjectTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservedObjectTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -177,7 +175,6 @@
 		F7F2FA402AF3892E00C258D4 /* Dev */ = {
 			isa = PBXGroup;
 			children = (
-				F7F2FA412AF3895500C258D4 /* Observing.swift */,
 			);
 			path = Dev;
 			sourceTree = "<group>";
@@ -316,7 +313,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D17280212A7C010700CDC50B /* ContentViewA.swift in Sources */,
-				F7F2FA422AF3895500C258D4 /* Observing.swift in Sources */,
 				E4FDB4512AE1726900D755C3 /* ContentViewB.swift in Sources */,
 				E4FDB4552AE175F900D755C3 /* ContentViewC.swift in Sources */,
 				F79817DA2AEF93B1008A7E34 /* RrefreshScrollTestView.swift in Sources */,
