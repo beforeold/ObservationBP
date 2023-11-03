@@ -10,29 +10,39 @@ import ObservationBPLock
 import SwiftUI
 
 @propertyWrapper
-public struct Observing<Value: AnyObject>: DynamicProperty {
+public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     // instance keep, like @StateObject  https://gist.github.com/Amzd/8f0d4d94fcbb6c9548e7cf0c1493eaff
     @State private var storage = Storage<Value>()
+    private let tracker = Tracker()
+    private let state = ObservingState()
     private var thunk: () -> Value
 
+    public var id: String? {
+        set {
+            tracker.id = newValue
+        }
+        get {
+            tracker.id
+        }
+    }
+
+    @MainActor
     public var wrappedValue: Value {
         set {
             storage.value = newValue
         }
         get {
             ensureStorageValue()
-            if !storage.tracker.isRunning {
-                storage.tracker.start { [weak storage] in
-                    if let storage {
+            if !tracker.isRunning {
+                tracker.open {
+                    if !state.didUpdate {
+                        state.didUpdate = true
+                        print("🌝update", self.id)
+
                         Task { @MainActor in
-                            let new = Storage<Value>()
-                            new.value = storage.value
-                            self.storage = new
+                            _storage.wrappedValue = Storage<Value>(uuid: storage.uuid, value: storage.value)
                         }
                     }
-                }
-                DispatchQueue.main.async { [weak storage] in
-                    storage?.tracker.close()
                 }
             }
             return storage.value!
@@ -49,22 +59,24 @@ public struct Observing<Value: AnyObject>: DynamicProperty {
         thunk = wrappedValue
     }
 
-    public mutating func update() {
-        _storage.update()
+    public func update() {
+        print("🌞updated", id)
+        state.didUpdate = false
     }
 
     private func ensureStorageValue() {
         if storage.value == nil {
             storage.value = thunk()
+            print("ensureStorageValue!")
         }
     }
 }
 
-extension Observing: Equatable {
-    public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
-        lhs.storage.value === rhs.storage.value
-    }
-}
+//extension Observing: Equatable {
+//    public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
+//        lhs.storage.uuid == rhs.storage.uuid // .value && lhs.state.didUpdate == rhs.state.didUpdate
+//    }
+//}
 
 public extension Observing {
     @dynamicMemberLookup
@@ -86,9 +98,18 @@ public extension Observing {
     }
 }
 
-private final class Storage<Value> {
-    let tracker = Tracker()
+private final class Storage<Value: AnyObject> {
+    var uuid: UUID
     var value: Value?
+
+    init(uuid: UUID = UUID(), value: Value? = nil) {
+        self.uuid = uuid
+        self.value = value
+    }
+}
+
+private final class ObservingState {
+    var didUpdate = false
 }
 
 private weak var previousTracker: Tracker?
@@ -98,6 +119,8 @@ private final class Tracker {
     private var previous: UnsafeMutableRawPointer?
     private var accessList: ObservationTracking._AccessList?
     private var onChange: (() -> @Sendable () -> Void)?
+
+    var id: String?
 
     deinit {
         if isRunning {
@@ -109,19 +132,38 @@ private final class Tracker {
         }
     }
 
-    func start(onChange: @autoclosure @escaping () -> @Sendable () -> Void) {
+    @MainActor
+    func open(onChange: @autoclosure @escaping () -> @Sendable () -> Void) {
         guard !isRunning else { return }
         isRunning = true
         self.onChange = onChange
 
-        if let previous = previousTracker, previous !== self {
+        if let previous = previousTracker {
             previous.close()
             previousTracker = nil
         }
 
+        print("  >>> open", id)
+
+        accessList = ObservationTracking._AccessList?.none
         withUnsafeMutablePointer(to: &accessList) { ptr in
             self.previous = _ThreadLocal.value
             _ThreadLocal.value = UnsafeMutableRawPointer(ptr)
+        }
+        previousTracker = self
+
+        DispatchQueue.main.async { [weak self] in
+            self?.close()
+        }
+    }
+
+    @MainActor
+    func close() {
+        guard isRunning else { return }
+        print("  <<< close", id)
+        print("      <<<", accessList?.entries.values.map(\.properties))
+
+        withUnsafeMutablePointer(to: &accessList) { ptr in
             if let scoped = ptr.pointee, let previous = self.previous {
                 if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {
                     prevList.merge(scoped)
@@ -131,19 +173,14 @@ private final class Tracker {
                 }
             }
         }
-        previousTracker = self
-    }
-
-    func close() {
-        guard isRunning else { return }
-        isRunning = false
-
         _ThreadLocal.value = previous
+
         if let accessList, let onChange {
             ObservationTracking._installTracking(accessList, onChange: onChange())
         }
         previous = nil
         onChange = nil
+        isRunning = false
         if previousTracker === self {
             previousTracker = nil
         }

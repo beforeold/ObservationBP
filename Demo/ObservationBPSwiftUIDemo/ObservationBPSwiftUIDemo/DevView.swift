@@ -10,10 +10,10 @@ import SwiftUI
 
 struct DevView: View {
     @Observing
-    private var person = Person(name: "Tom", age: 12)
+    private var person = DevPerson(name: "Tom", age: 12)
 
     init() {
-//        _person.rT.id = "DevView"
+        _person.id = "DevView"
     }
 
     @State private var randomColor = Color(
@@ -57,19 +57,15 @@ struct DevView: View {
         }
         .padding()
         .background(randomColor)
-        .onAppear(perform: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                person.testGet = "456"
-            }
-        })
+
     }
 }
 
 private struct PersonNameView: View {
-    @Observing private var person: Person
-    fileprivate init(person: Person) {
+    @Observing var person: DevPerson
+    init(person: DevPerson) {
         _person = .init(wrappedValue: person)
-//        _person.rT.id = "PersonNameView"
+        _person.id = "PersonNameView"
     }
 
     var body: some View {
@@ -80,37 +76,82 @@ private struct PersonNameView: View {
     }
 }
 
-private var count: Int = 1
-
 private struct PersonAgeView: View {
-    @Observing private var person: Person
-
-    fileprivate init(person: Person) {
+    @Observing var person: DevPerson
+    init(person: DevPerson) {
         _person = .init(wrappedValue: person)
-//        _person.rT.id = "PersonAgeView"
+        _person.id = "PersonAgeView"
     }
 
     var body: some View {
         if #available(iOS 15.0, *) {
             let _ = Self._printChanges()
         }
-        let _ = count += 1
-
-        Group {
-            if #available(iOS 15.0, *) {
-                let _ = Self._printChanges()
-            }
-            if count % 2 == 0 {
-                Text("\(person.age)")
-                    .background(Color.red)
-            } else {
-                Text("\(person.age) xxx")
-                    .background(Color.blue)
-            }
-        }
+        Text("\(person.age)")
+            .background(Color(
+                red: .random(in: 0 ... 1),
+                green: .random(in: 0 ... 1),
+                blue: .random(in: 0 ... 1)
+            ))
     }
 }
 
 #Preview {
     DevView()
 }
+
+final class DevPerson {
+    private var _name: String
+    var name: String {
+        init(initialValue) initializes(_name) {
+            _name = initialValue
+        }
+        get {
+            access(keyPath: \.name)
+            return _name
+        }
+        set {
+            withMutation(keyPath: \.name) {
+                _name = newValue
+            }
+        }
+    }
+
+    private var _age: Int
+    var age: Int {
+        init(initialValue) initializes(_age) {
+            _age = initialValue
+        }
+        get {
+            access(keyPath: \.age)
+            return _age
+        }
+        set {
+            withMutation(keyPath: \.age) {
+                _age = newValue
+            }
+        }
+    }
+
+    init(name: String, age: Int) {
+        self.name = name
+        self.age = age
+    }
+
+    @ObservationIgnored private let _$observationRegistrar = ObservationBP.ObservationRegistrar()
+
+    nonisolated func access<Member>(
+        keyPath: KeyPath<DevPerson, Member>
+    ) {
+        _$observationRegistrar.access(self, keyPath: keyPath)
+    }
+
+    nonisolated func withMutation<Member, T>(
+        keyPath: KeyPath<DevPerson, Member>,
+        _ mutation: () throws -> T
+    ) rethrows -> T {
+        try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
+    }
+}
+
+extension DevPerson: Observable {}

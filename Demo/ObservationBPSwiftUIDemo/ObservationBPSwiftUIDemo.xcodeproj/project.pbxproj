@@ -120,7 +120,6 @@
 		D172801D2A7C010700CDC50B /* ObservationBPSwiftUIDemo */ = {
 			isa = PBXGroup;
 			children = (
-				F7F2FA402AF3892E00C258D4 /* Dev */,
 				F79817D72AEF9236008A7E34 /* RefreshableScrollView.swift */,
 				F791ABA62AE26D5B0008B7F5 /* Models.swift */,
 				F791ABA82AE26DFA0008B7F5 /* ModelsNative.swift */,
@@ -170,13 +169,6 @@
 				D1B14B622A7C0169000F280F /* ObservationBP.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		F7F2FA402AF3892E00C258D4 /* Dev */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Dev;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

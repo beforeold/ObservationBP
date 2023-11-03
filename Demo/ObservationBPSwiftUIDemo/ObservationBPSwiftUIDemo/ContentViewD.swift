@@ -35,7 +35,6 @@ struct ContentViewD: View {
                 Button("-") { person.age -= 1 }
                 Button("name") { person.name += "@" }
                 Button("list") { person.list = person.list.shuffled() }
-
             }
         }
         .padding()
@@ -70,14 +69,13 @@ private struct PersonAgeView: View {
     }
 
     var body: some View {
-        Self._printChanges()
-        if Bool.random() {
-            return Text("\(person.age)")
-                .background(Color.red)
-        } else {
-            return Text("\(person.age) 999")
-                .background(Color.blue)
-        }
+        let _ = Self._printChanges()
+        Text("\(person.age)")
+            .background(Color(
+                red: .random(in: 0 ... 1),
+                green: .random(in: 0 ... 1),
+                blue: .random(in: 0 ... 1)
+            ))
     }
 }
 

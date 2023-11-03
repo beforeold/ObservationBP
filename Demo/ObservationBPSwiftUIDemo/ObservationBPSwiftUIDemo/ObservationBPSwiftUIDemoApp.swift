@@ -21,17 +21,15 @@ struct ObservationBPSwiftUIDemoApp: App {
 struct Page1: View {
     var body: some View {
         VStack {
-            NavigationLink(destination: RrefreshScrollTestView()) { Text("RrefreshScrollTestView") }
-                .padding()
+//            NavigationLink(destination: RrefreshScrollTestView()) { Text("RrefreshScrollTestView") }
+//                .padding()
             NavigationLink(destination: DevView()) { Text("DevView") }
                 .padding()
-            NavigationLink(destination: ContentViewA()) { Text("@Observation") }
-                .padding()
-            NavigationLink(destination: ContentViewB()) { Text("ObservableObject") }
-                .padding()
-            NavigationLink(destination: ContentViewC()) { Text("ObservingView") }
-                .padding()
+
             NavigationLink(destination: ObservedObjectTest()) { Text("ObservedObjectTest") }
+                .padding()
+
+            NavigationLink(destination: ContentViewB()) { Text("<iOS17 ObservableObject") }
                 .padding()
 
             if #available(iOS 17.0, *) {
