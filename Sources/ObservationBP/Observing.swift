@@ -37,10 +37,10 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
                 tracker.open {
                     if !state.didUpdate {
                         state.didUpdate = true
-                        print("🌝update", self.id)
+                        // print("🌝update", self.id)
 
                         Task { @MainActor in
-                            _storage.wrappedValue = Storage<Value>(uuid: storage.uuid, value: storage.value)
+                            _storage.wrappedValue = Storage<Value>(value: storage.value)
                         }
                     }
                 }
@@ -60,23 +60,24 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     }
 
     public func update() {
-        print("🌞updated", id)
+        // print("🌞updated", id)
         state.didUpdate = false
     }
 
     private func ensureStorageValue() {
         if storage.value == nil {
             storage.value = thunk()
-            print("ensureStorageValue!")
         }
     }
 }
 
-//extension Observing: Equatable {
-//    public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
-//        lhs.storage.uuid == rhs.storage.uuid // .value && lhs.state.didUpdate == rhs.state.didUpdate
-//    }
-//}
+extension Observing: Equatable {
+    public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
+        lhs.ensureStorageValue()
+        rhs.ensureStorageValue()
+        return lhs.storage.value === rhs.storage.value
+    }
+}
 
 public extension Observing {
     @dynamicMemberLookup
@@ -99,11 +100,9 @@ public extension Observing {
 }
 
 private final class Storage<Value: AnyObject> {
-    var uuid: UUID
     var value: Value?
 
-    init(uuid: UUID = UUID(), value: Value? = nil) {
-        self.uuid = uuid
+    init(value: Value? = nil) {
         self.value = value
     }
 }
@@ -143,7 +142,7 @@ private final class Tracker {
             previousTracker = nil
         }
 
-        print("  >>> open", id)
+        // print("  >>> open", id)
 
         accessList = ObservationTracking._AccessList?.none
         withUnsafeMutablePointer(to: &accessList) { ptr in
@@ -160,8 +159,8 @@ private final class Tracker {
     @MainActor
     func close() {
         guard isRunning else { return }
-        print("  <<< close", id)
-        print("      <<<", accessList?.entries.values.map(\.properties))
+        // print("  <<< close", id)
+        // print("      <<<", accessList?.entries.values.map(\.properties))
 
         withUnsafeMutablePointer(to: &accessList) { ptr in
             if let scoped = ptr.pointee, let previous = self.previous {

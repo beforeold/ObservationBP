@@ -33,15 +33,15 @@ struct DevView: View {
             TextField("123", text: $person.name)
                 .background(Color.yellow)
 
-//            LazyView {
-//                VStack {
-//                    Text(person.testGet ?? "null")
-//                        .background(Color.yellow)
-//
-//                    Text(person.testGet2)
-//                        .background(Color.yellow)
-//                }
-//            }
+            LazyView {
+                VStack {
+                    Text("(lazy)" + person.name)
+                        .background(Color.yellow)
+
+                    Text("(lazy)" + "\(person.age)")
+                        .background(Color.yellow)
+                }
+            }
 
             VStack {
                 PersonNameView(person: person)
@@ -57,7 +57,6 @@ struct DevView: View {
         }
         .padding()
         .background(randomColor)
-
     }
 }
 
