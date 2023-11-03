@@ -18,12 +18,24 @@ struct ContentViewD: View {
     )
 
     var body: some View {
-        Self._printChanges()
-        return VStack {
+        let _ = Self._printChanges()
+        VStack {
             Text(person.name)
             Text("\(person.age)")
             Text(person.list.description)
 
+            
+            LazyView {
+                VStack {
+                    Text("(lazy)" + person.name)
+                        .background(Color.yellow)
+
+                    Text("(lazy)" + "\(person.age)")
+                        .background(Color.yellow)
+                }
+            }
+
+            
             VStack {
                 PersonNameView(person: person)
                 PersonAgeView(person: person)
@@ -45,7 +57,7 @@ struct ContentViewD: View {
 
 @available(iOS 17.0, *)
 private struct PersonNameView: View {
-    @State private var person: Person17
+    private var person: Person17
     private var clz = Clz17(name: UUID().uuidString.components(separatedBy: "-")[0])
 
     fileprivate init(person: Person17) {
@@ -63,7 +75,7 @@ private struct PersonNameView: View {
 
 @available(iOS 17.0, *)
 private struct PersonAgeView: View {
-    @State private var person: Person17
+    private var person: Person17
     fileprivate init(person: Person17) {
         self.person = person
     }
