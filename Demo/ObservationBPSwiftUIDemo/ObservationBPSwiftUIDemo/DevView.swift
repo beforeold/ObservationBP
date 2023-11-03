@@ -99,6 +99,9 @@ private struct PersonAgeView: View {
     DevView()
 }
 
+typealias DevPerson = Person
+
+/*
 final class DevPerson {
     private var _name: String
     var name: String {
@@ -152,5 +155,6 @@ final class DevPerson {
         try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
     }
 }
+ */
 
 extension DevPerson: Observable {}

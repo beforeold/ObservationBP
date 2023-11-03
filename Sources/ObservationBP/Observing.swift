@@ -17,6 +17,7 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     private let state = ObservingState()
     private var thunk: () -> Value
 
+#if DEBUG
     public var id: String? {
         set {
             tracker.id = newValue
@@ -25,6 +26,7 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
             tracker.id
         }
     }
+#endif
 
     @MainActor
     public var wrappedValue: Value {
@@ -34,15 +36,17 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
         get {
             ensureStorageValue()
             if !tracker.isRunning {
-                tracker.open {
-                    if !state.didUpdate {
-                        state.didUpdate = true
+                state.onUpdate = { [weak state] in
+                    if let state, !state.dirty {
+                        state.dirty = true
                         // print("🌝update", self.id)
-
                         Task { @MainActor in
                             _storage.wrappedValue = Storage<Value>(value: storage.value)
                         }
                     }
+                }
+                tracker.open { [weak state] in
+                    state?.update()
                 }
             }
             return storage.value!
@@ -61,7 +65,11 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
 
     public func update() {
         // print("🌞updated", id)
-        state.didUpdate = false
+        if state.dirty {
+            DispatchQueue.main.async { [weak state] in
+                state?.dirty = false
+            }
+        }
     }
 
     private func ensureStorageValue() {
@@ -73,6 +81,9 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
 
 extension Observing: Equatable {
     public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
+        if lhs.state.dirty || rhs.state.dirty {
+            return false
+        }
         lhs.ensureStorageValue()
         rhs.ensureStorageValue()
         return lhs.storage.value === rhs.storage.value
@@ -109,6 +120,13 @@ private final class Storage<Value: AnyObject> {
 
 private final class ObservingState {
     var didUpdate = false
+    var dirty = false
+
+    var onUpdate: (() -> Void)?
+
+    func update() {
+        onUpdate?()
+    }
 }
 
 private weak var previousTracker: Tracker?
