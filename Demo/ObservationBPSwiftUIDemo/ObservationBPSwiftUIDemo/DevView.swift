@@ -45,6 +45,7 @@ struct DevView: View {
 
             VStack {
                 PersonNameView(person: person)
+                PersonName2View(person: person)
                 PersonAgeView(person: person)
             }
             .padding()
@@ -75,6 +76,21 @@ private struct PersonNameView: View {
     }
 }
 
+private struct PersonName2View: View {
+    @Observing var person: DevPerson
+    init(person: DevPerson) {
+        _person = .init(wrappedValue: person)
+        _person.id = "PersonName2View"
+    }
+
+    var body: some View {
+        if #available(iOS 15.0, *) {
+            let _ = Self._printChanges()
+        }
+        TextField("name", text: $person.name)
+    }
+}
+
 private struct PersonAgeView: View {
     @Observing var person: DevPerson
     init(person: DevPerson) {
@@ -102,59 +118,61 @@ private struct PersonAgeView: View {
 typealias DevPerson = Person
 
 /*
-final class DevPerson {
-    private var _name: String
-    var name: String {
-        init(initialValue) initializes(_name) {
-            _name = initialValue
-        }
-        get {
-            access(keyPath: \.name)
-            return _name
-        }
-        set {
-            withMutation(keyPath: \.name) {
-                _name = newValue
-            }
-        }
-    }
+ final class DevPerson {
+     private var _name: String
+     var name: String {
+         init(initialValue) initializes(_name) {
+             _name = initialValue
+         }
+         get {
+             print("    access: name", _name)
+             access(keyPath: \.name)
+             return _name
+         }
+         set {
+             withMutation(keyPath: \.name) {
+                 _name = newValue
+             }
+         }
+     }
 
-    private var _age: Int
-    var age: Int {
-        init(initialValue) initializes(_age) {
-            _age = initialValue
-        }
-        get {
-            access(keyPath: \.age)
-            return _age
-        }
-        set {
-            withMutation(keyPath: \.age) {
-                _age = newValue
-            }
-        }
-    }
+     private var _age: Int
+     var age: Int {
+         init(initialValue) initializes(_age) {
+             _age = initialValue
+         }
+         get {
+             print("    access: age", _age)
+             access(keyPath: \.age)
+             return _age
+         }
+         set {
+             withMutation(keyPath: \.age) {
+                 _age = newValue
+             }
+         }
+     }
 
-    init(name: String, age: Int) {
-        self.name = name
-        self.age = age
-    }
+     init(name: String, age: Int) {
+         self.name = name
+         self.age = age
+     }
 
-    @ObservationIgnored private let _$observationRegistrar = ObservationBP.ObservationRegistrar()
+     @ObservationIgnored private let _$observationRegistrar = ObservationBP.ObservationRegistrar()
 
-    nonisolated func access<Member>(
-        keyPath: KeyPath<DevPerson, Member>
-    ) {
-        _$observationRegistrar.access(self, keyPath: keyPath)
-    }
+     nonisolated func access<Member>(
+         keyPath: KeyPath<DevPerson, Member>
+     ) {
+         _$observationRegistrar.access(self, keyPath: keyPath)
+     }
 
-    nonisolated func withMutation<Member, T>(
-        keyPath: KeyPath<DevPerson, Member>,
-        _ mutation: () throws -> T
-    ) rethrows -> T {
-        try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
-    }
-}
- */
+     nonisolated func withMutation<Member, T>(
+         keyPath: KeyPath<DevPerson, Member>,
+         _ mutation: () throws -> T
+     ) rethrows -> T {
+         try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
+     }
+ }
+  */
 
 extension DevPerson: Observable {}

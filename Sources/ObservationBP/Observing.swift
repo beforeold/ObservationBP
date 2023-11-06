@@ -11,20 +11,17 @@ import SwiftUI
 
 @propertyWrapper
 public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
-    @ObservedObject private var emitter: Emitter<Value>
-    private let tracker = Tracker()
-    private let state = ObservingState()
-    private var storage: Storage<Value> {
-        emitter.storage
-    }
+    // instance keep, like @StateObject  https://gist.github.com/Amzd/8f0d4d94fcbb6c9548e7cf0c1493eaff
+    @ObservedObject private var emitter = Emitter<Value>()
+    @State private var container: Container<Value>
 
 #if DEBUG
-    public var id: String? {
+    public var id: String {
         set {
-            tracker.id = newValue
+            container.tracker.id = newValue
         }
         get {
-            tracker.id
+            container.tracker.id
         }
     }
 #endif
@@ -32,36 +29,39 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     @MainActor
     public var wrappedValue: Value {
         set {
-            storage.value = newValue
+            container.value = newValue
         }
         get {
-            if !tracker.isRunning {
-                tracker.open { [weak state, weak emitter] in
-                    if let state, !state.dirty {
-                        state.dirty = true
-                        emitter?.invalidate()
+            if !container.tracker.isRunning {
+                let id = self.id
+                container.tracker.open { [weak container, weak emitter] in
+                    if let emitter, let container, !container.state.dirty {
+                        print("🌜update", id)
+                        container.state.dirty = true
+                        emitter.objectWillChange.send(container.value)
                     }
                 }
             }
-            return storage.value!
+            return container.value
         }
     }
 
     @MainActor
     public var projectedValue: Bindable {
-        return Bindable(storage: storage)
+        return Bindable(observing: self)
     }
 
-    public init(wrappedValue: @autoclosure @escaping () -> Value) {
-        let storage = Storage<Value>(thunk: wrappedValue)
-        _emitter = .init(initialValue: Emitter(storage: storage))
+    public init(wrappedValue: Value) {
+        let container = Container(value: wrappedValue)
+        _container = .init(initialValue: container)
+//        _stateContainer = .init(initialValue: container)
     }
 
     public func update() {
-        // print("🌞updated", id)
-        if state.dirty {
-            DispatchQueue.main.async { [weak state] in
-                state?.dirty = false
+        print("🌞updated", id)
+        if container.state.dirty {
+            DispatchQueue.main.async { [weak container] in
+                container?.state.dirty = false
             }
         }
     }
@@ -69,66 +69,72 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
 
 extension Observing: Equatable {
     public static func == (lhs: Observing<Value>, rhs: Observing<Value>) -> Bool {
-        if lhs.state.dirty || rhs.state.dirty {
+        if lhs.container.state.dirty || rhs.container.state.dirty {
             return false
         }
-        return lhs.storage.value === rhs.storage.value
+        return lhs.container.value === rhs.container.value
     }
 }
 
 public extension Observing {
     @dynamicMemberLookup
     struct Bindable {
-        private let storage: Storage<Value>
+        private let observing: Observing<Value>
 
-        fileprivate init(storage: Storage<Value>) {
-            self.storage = storage
+        fileprivate init(observing: Observing<Value>) {
+            self.observing = observing
         }
 
         @MainActor
         public subscript<V>(dynamicMember keyPath: ReferenceWritableKeyPath<Value, V>) -> Binding<V> {
             Binding {
-                storage.value![keyPath: keyPath]
+                observing.wrappedValue[keyPath: keyPath]
             } set: { newValue in
-                storage.value![keyPath: keyPath] = newValue
+                observing.wrappedValue[keyPath: keyPath] = newValue
             }
         }
     }
 }
 
 private final class Emitter<Value: AnyObject>: ObservableObject {
-    let objectWillChange = PassthroughSubject<Storage<Value>, Never>()
-    let storage: Storage<Value>
-
-    init(storage: Storage<Value>) {
-        self.storage = storage
-    }
-
-    func invalidate() {
-        objectWillChange.send(storage)
-    }
+    let objectWillChange = PassthroughSubject<Value, Never>()
 }
 
-private final class Storage<Value: AnyObject> {
-    private var _value: Value?
-    private var thunk: (() -> Value)?
-    var value: Value? {
-        get {
-            if _value == nil, thunk != nil {
-                _value = thunk?()
-            }
-            return _value
-        }
-        set {
-            _value = newValue
-        }
+private final class Container<Value: AnyObject>: ObservableObject {
+    var value: Value
+    private(set) var uuid = UUID()
+    private(set) var tracker = Tracker()
+    private(set) var state = ObservingState()
+
+    deinit {
+        print("deinit", self)
     }
 
-    init(value: Value? = nil, thunk: (() -> Value)? = nil) {
+    init(value: Value) {
         self.value = value
-        self.thunk = thunk
     }
 }
+
+// private final class Storage<Value: AnyObject> {
+//    private var _value: Value?
+//    private var thunk: (() -> Value)?
+//    var value: Value? {
+//        get {
+//            if _value == nil, thunk != nil {
+//                _value = thunk?()
+//            }
+//            return _value
+//        }
+//        set {
+//            _value = newValue
+//        }
+//    }
+//
+//    init(value: Value? = nil, thunk: (() -> Value)? = nil) {
+//        self.value = value
+//        self.thunk = thunk
+//    }
+// }
 
 private final class ObservingState {
     var dirty = false
@@ -136,18 +142,30 @@ private final class ObservingState {
 
 private weak var previousTracker: Tracker?
 
+private final class TrackerOne {
+    private(set) var accessList: ObservationTracking._AccessList?
+    let ptr: UnsafeMutablePointer<ObservationTracking._AccessList?>
+
+    var previous: UnsafeMutableRawPointer?
+    var onChange: (() -> @Sendable () -> Void)?
+
+    init() {
+        ptr = withUnsafeMutablePointer(to: &accessList) { $0 }
+    }
+}
+
 private final class Tracker {
     private(set) var isRunning = false
-    private var previous: UnsafeMutableRawPointer?
-    private var accessList: ObservationTracking._AccessList?
-    private var onChange: (() -> @Sendable () -> Void)?
-
-    var id: String?
+    private var tracker: TrackerOne?
+    var id: String = ""
 
     deinit {
+        print("deinit", id)
+
         if isRunning {
             isRunning = false
-            _ThreadLocal.value = previous
+            _ThreadLocal.value = tracker?.previous
+            tracker = nil
             if previousTracker === self {
                 previousTracker = nil
             }
@@ -158,7 +176,6 @@ private final class Tracker {
     func open(onChange: @autoclosure @escaping () -> @Sendable () -> Void) {
         guard !isRunning else { return }
         isRunning = true
-        self.onChange = onChange
 
         if let previous = previousTracker {
             previous.close()
@@ -167,11 +184,12 @@ private final class Tracker {
 
         // print("  >>> open", id)
 
-        accessList = ObservationTracking._AccessList?.none
-        withUnsafeMutablePointer(to: &accessList) { ptr in
-            self.previous = _ThreadLocal.value
-            _ThreadLocal.value = UnsafeMutableRawPointer(ptr)
-        }
+        let one = TrackerOne()
+        one.onChange = onChange
+        one.previous = _ThreadLocal.value
+        tracker = one
+        _ThreadLocal.value = UnsafeMutableRawPointer(one.ptr)
+
         previousTracker = self
 
         DispatchQueue.main.async { [weak self] in
@@ -181,30 +199,32 @@ private final class Tracker {
 
     @MainActor
     func close() {
-        guard isRunning else { return }
-        // print("  <<< close", id)
-        // print("      <<<", accessList?.entries.values.map(\.properties))
-
-        withUnsafeMutablePointer(to: &accessList) { ptr in
-            if let scoped = ptr.pointee, let previous = self.previous {
-                if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {
-                    prevList.merge(scoped)
-                    previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = prevList
-                } else {
-                    previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = scoped
-                }
+        defer {
+            isRunning = false
+            tracker = nil
+            if previousTracker === self {
+                previousTracker = nil
             }
         }
-        _ThreadLocal.value = previous
+        guard isRunning, let lastOne = tracker else { return }
 
-        if let accessList, let onChange {
-            ObservationTracking._installTracking(accessList, onChange: onChange())
+        let accessList = lastOne.accessList
+        let ptr = lastOne.ptr
+
+        // print("  <<< close", id, accessList?.entries.values.map(\.properties))
+
+        if let scoped = ptr.pointee, let previous = lastOne.previous {
+            if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {
+                prevList.merge(scoped)
+                previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = prevList
+            } else {
+                previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = scoped
+            }
         }
-        previous = nil
-        onChange = nil
-        isRunning = false
-        if previousTracker === self {
-            previousTracker = nil
+        _ThreadLocal.value = lastOne.previous
+
+        if let accessList, let onChange = lastOne.onChange {
+            ObservationTracking._installTracking(accessList, onChange: onChange())
         }
     }
 }
