@@ -11,11 +11,12 @@ import SwiftUI
 
 @propertyWrapper
 public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
-    // instance keep, like @StateObject  https://gist.github.com/Amzd/8f0d4d94fcbb6c9548e7cf0c1493eaff
-    @State private var storage = Storage<Value>()
+    @ObservedObject private var emitter: Emitter<Value>
     private let tracker = Tracker()
     private let state = ObservingState()
-    private var thunk: () -> Value
+    private var storage: Storage<Value> {
+        emitter.storage
+    }
 
 #if DEBUG
     public var id: String? {
@@ -34,19 +35,12 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
             storage.value = newValue
         }
         get {
-            ensureStorageValue()
             if !tracker.isRunning {
-                state.onUpdate = { [weak state] in
+                tracker.open { [weak state, weak emitter] in
                     if let state, !state.dirty {
                         state.dirty = true
-                        // print("🌝update", self.id)
-                        Task { @MainActor in
-                            _storage.wrappedValue = Storage<Value>(value: storage.value)
-                        }
+                        emitter?.invalidate()
                     }
-                }
-                tracker.open { [weak state] in
-                    state?.update()
                 }
             }
             return storage.value!
@@ -55,12 +49,12 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
 
     @MainActor
     public var projectedValue: Bindable {
-        ensureStorageValue()
         return Bindable(storage: storage)
     }
 
     public init(wrappedValue: @autoclosure @escaping () -> Value) {
-        thunk = wrappedValue
+        let storage = Storage<Value>(thunk: wrappedValue)
+        _emitter = .init(initialValue: Emitter(storage: storage))
     }
 
     public func update() {
@@ -71,12 +65,6 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
             }
         }
     }
-
-    private func ensureStorageValue() {
-        if storage.value == nil {
-            storage.value = thunk()
-        }
-    }
 }
 
 extension Observing: Equatable {
@@ -84,8 +72,6 @@ extension Observing: Equatable {
         if lhs.state.dirty || rhs.state.dirty {
             return false
         }
-        lhs.ensureStorageValue()
-        rhs.ensureStorageValue()
         return lhs.storage.value === rhs.storage.value
     }
 }
@@ -110,23 +96,42 @@ public extension Observing {
     }
 }
 
-private final class Storage<Value: AnyObject> {
-    var value: Value?
+private final class Emitter<Value: AnyObject>: ObservableObject {
+    let objectWillChange = PassthroughSubject<Storage<Value>, Never>()
+    let storage: Storage<Value>
 
-    init(value: Value? = nil) {
+    init(storage: Storage<Value>) {
+        self.storage = storage
+    }
+
+    func invalidate() {
+        objectWillChange.send(storage)
+    }
+}
+
+private final class Storage<Value: AnyObject> {
+    private var _value: Value?
+    private var thunk: (() -> Value)?
+    var value: Value? {
+        get {
+            if _value == nil, thunk != nil {
+                _value = thunk?()
+            }
+            return _value
+        }
+        set {
+            _value = newValue
+        }
+    }
+
+    init(value: Value? = nil, thunk: (() -> Value)? = nil) {
         self.value = value
+        self.thunk = thunk
     }
 }
 
 private final class ObservingState {
-    var didUpdate = false
     var dirty = false
-
-    var onUpdate: (() -> Void)?
-
-    func update() {
-        onUpdate?()
-    }
 }
 
 private weak var previousTracker: Tracker?
