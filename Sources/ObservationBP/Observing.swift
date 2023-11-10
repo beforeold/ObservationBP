@@ -14,6 +14,7 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     // instance keep, like @StateObject  https://gist.github.com/Amzd/8f0d4d94fcbb6c9548e7cf0c1493eaff
     @ObservedObject private var emitter = Emitter<Value>()
     @State private var container: Container<Value>
+    private var initValue: Value
 
 #if DEBUG
     public var id: String {
@@ -33,12 +34,13 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
         }
         get {
             if !container.tracker.isRunning {
-                let id = self.id
-                container.tracker.open { [weak container, weak emitter] in
-                    if let emitter, let container, !container.state.dirty {
-                        print("🌜update", id)
-                        container.state.dirty = true
-                        emitter.objectWillChange.send(container.value)
+                container.tracker.open { [weak emitter, weak container] in
+                    if let emitter, let container {
+                        if !container.state.dirty {
+                            // print("🌜update", id)
+                            container.state.dirty = true
+                            emitter.objectWillChange.send(container.value)
+                        }
                     }
                 }
             }
@@ -52,16 +54,15 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     }
 
     public init(wrappedValue: Value) {
-        let container = Container(value: wrappedValue)
-        _container = .init(initialValue: container)
-//        _stateContainer = .init(initialValue: container)
+        initValue = wrappedValue
+        _container = .init(initialValue: Container(value: wrappedValue))
     }
 
     public func update() {
-        print("🌞updated", id)
+        // print("🌞updated")
         if container.state.dirty {
-            DispatchQueue.main.async { [weak container] in
-                container?.state.dirty = false
+            DispatchQueue.main.async {
+                container.state.dirty = false
             }
         }
     }
@@ -100,41 +101,16 @@ private final class Emitter<Value: AnyObject>: ObservableObject {
     let objectWillChange = PassthroughSubject<Value, Never>()
 }
 
-private final class Container<Value: AnyObject>: ObservableObject {
+private final class Container<Value: AnyObject> {
     var value: Value
     private(set) var uuid = UUID()
     private(set) var tracker = Tracker()
     private(set) var state = ObservingState()
 
-    deinit {
-        print("deinit", self)
-    }
-
     init(value: Value) {
         self.value = value
     }
 }
-
-// private final class Storage<Value: AnyObject> {
-//    private var _value: Value?
-//    private var thunk: (() -> Value)?
-//    var value: Value? {
-//        get {
-//            if _value == nil, thunk != nil {
-//                _value = thunk?()
-//            }
-//            return _value
-//        }
-//        set {
-//            _value = newValue
-//        }
-//    }
-//
-//    init(value: Value? = nil, thunk: (() -> Value)? = nil) {
-//        self.value = value
-//        self.thunk = thunk
-//    }
-// }
 
 private final class ObservingState {
     var dirty = false
@@ -144,10 +120,9 @@ private weak var previousTracker: Tracker?
 
 private final class TrackerOne {
     private(set) var accessList: ObservationTracking._AccessList?
-    let ptr: UnsafeMutablePointer<ObservationTracking._AccessList?>
-
+    var ptr: UnsafeMutablePointer<ObservationTracking._AccessList?>?
     var previous: UnsafeMutableRawPointer?
-    var onChange: (() -> @Sendable () -> Void)?
+    var onChange: (@Sendable () -> Void)?
 
     init() {
         ptr = withUnsafeMutablePointer(to: &accessList) { $0 }
@@ -156,16 +131,17 @@ private final class TrackerOne {
 
 private final class Tracker {
     private(set) var isRunning = false
-    private var tracker: TrackerOne?
+    private var trackers: [TrackerOne] = []
     var id: String = ""
 
+    init() {}
+
     deinit {
-        print("deinit", id)
+        print("Tracker deinit", id)
 
         if isRunning {
             isRunning = false
-            _ThreadLocal.value = tracker?.previous
-            tracker = nil
+            _ThreadLocal.value = trackers.first?.previous
             if previousTracker === self {
                 previousTracker = nil
             }
@@ -173,21 +149,20 @@ private final class Tracker {
     }
 
     @MainActor
-    func open(onChange: @autoclosure @escaping () -> @Sendable () -> Void) {
+    func open(onChange: @escaping @Sendable () -> Void) {
         guard !isRunning else { return }
-        isRunning = true
-
         if let previous = previousTracker {
             previous.close()
             previousTracker = nil
         }
+        isRunning = true
 
         // print("  >>> open", id)
 
         let one = TrackerOne()
         one.onChange = onChange
         one.previous = _ThreadLocal.value
-        tracker = one
+        trackers.append(one)
         _ThreadLocal.value = UnsafeMutableRawPointer(one.ptr)
 
         previousTracker = self
@@ -201,19 +176,18 @@ private final class Tracker {
     func close() {
         defer {
             isRunning = false
-            tracker = nil
             if previousTracker === self {
                 previousTracker = nil
             }
         }
-        guard isRunning, let lastOne = tracker else { return }
+        guard isRunning, let lastOne = trackers.last else { return }
 
         let accessList = lastOne.accessList
         let ptr = lastOne.ptr
 
         // print("  <<< close", id, accessList?.entries.values.map(\.properties))
 
-        if let scoped = ptr.pointee, let previous = lastOne.previous {
+        if let scoped = ptr?.pointee, let previous = lastOne.previous {
             if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {
                 prevList.merge(scoped)
                 previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = prevList
@@ -223,8 +197,11 @@ private final class Tracker {
         }
         _ThreadLocal.value = lastOne.previous
 
-        if let accessList, let onChange = lastOne.onChange {
-            ObservationTracking._installTracking(accessList, onChange: onChange())
+        if let accessList, lastOne.onChange != nil {
+            ObservationTracking._installTracking(accessList) { [weak lastOne, weak self] in
+                lastOne?.onChange?()
+                self?.trackers.removeAll(where: { $0 === lastOne })
+            }
         }
     }
 }
