@@ -15,23 +15,6 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     @State private var container: Container<Value>
     @ObservedObject private var emitter = Emitter()
 
-#if DEBUG
-    public var id: String {
-        set {
-            container.tracker.id = newValue
-        }
-        get {
-            container.tracker.id
-        }
-    }
-
-    public init(wrappedValue: Value, id: String) {
-        _container = .init(initialValue: Container(value: wrappedValue))
-        self.id = id
-    }
-
-#endif
-
     @MainActor
     public var wrappedValue: Value {
         set {
@@ -63,8 +46,6 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
     }
 
     public func update() {
-        // print("🌞updated", id)
-
         if container.state.dirty {
             DispatchQueue.main.async {
                 container.state.dirty = false
@@ -136,13 +117,8 @@ private final class TrackerOne {
 private final class Tracker {
     private(set) var isRunning = false
     private var trackers: [TrackerOne] = []
-    var id: String = ""
-
-    init() {}
 
     deinit {
-        // print("Tracker deinit", id)
-
         if isRunning {
             isRunning = false
             _ThreadLocal.value = trackers.first?.previous
@@ -160,8 +136,6 @@ private final class Tracker {
             previousTracker = nil
         }
         isRunning = true
-
-        // print("  >>> open", id)
 
         let one = TrackerOne()
         one.onChange = onChange
@@ -188,8 +162,6 @@ private final class Tracker {
 
         let accessList = lastOne.accessList
         let ptr = lastOne.ptr
-
-        // print("  <<< close", id, accessList?.entries.values.map(\.properties))
 
         if let scoped = ptr?.pointee, let previous = lastOne.previous {
             if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {

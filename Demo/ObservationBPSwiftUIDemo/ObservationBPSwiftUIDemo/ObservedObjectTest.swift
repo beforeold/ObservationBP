@@ -46,7 +46,7 @@ struct ObservedObjectTest: View {
 }
 
 struct CountView1State: View {
-    @Observing(id: "Count1") var state = ObservableClass(type: "StateObject")
+    @Observing var state = ObservableClass(type: "StateObject")
 
     var body: some View {
         VStack {
@@ -59,7 +59,7 @@ struct CountView1State: View {
 }
 
 struct CountView2State: View {
-    @Observing(id: "Count2") var state = ObservableClass(type: "StateObject")
+    @Observing var state = ObservableClass(type: "StateObject")
 
     var body: some View {
         VStack {

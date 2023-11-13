@@ -9,7 +9,7 @@ import ObservationBP
 import SwiftUI
 
 struct DevView: View {
-    @Observing(id: "DevView")
+    @Observing
     private var person = DevPerson(name: "Tom", age: 12)
 
     @State private var randomColor = Color(
@@ -62,7 +62,7 @@ private struct PersonNameView: View {
     var person: DevPerson
 
     init(person: DevPerson) {
-        _person = .init(wrappedValue: person, id: "PersonNameView")
+        _person = .init(wrappedValue: person)
     }
 
     var body: some View {
@@ -78,7 +78,7 @@ private struct PersonName2View: View {
     var person: DevPerson
 
     init(person: DevPerson) {
-        _person = .init(wrappedValue: person, id: "PersonName2View")
+        _person = .init(wrappedValue: person)
     }
 
     var body: some View {
@@ -93,7 +93,6 @@ private struct PersonAgeView: View {
     @Observing var person: DevPerson
     init(person: DevPerson) {
         _person = .init(wrappedValue: person)
-        _person.id = "PersonAgeView"
     }
 
     var body: some View {
