@@ -34,12 +34,17 @@ public struct Observing<Value: AnyObject & Observable>: DynamicProperty {
         }
         get {
             if !container.tracker.isRunning {
-                container.tracker.open { [weak emitter, weak container] in
-                    if let emitter, let container {
-                        if !container.state.dirty {
-                            // print("🌜update", id)
-                            container.state.dirty = true
-                            emitter.objectWillChange.send(container.value)
+                let id = self.id
+                container.tracker.open { [weak container] in
+                    if let container {
+                        Task { @MainActor in
+                            print("🌜will update", id, self.emitter, container)
+
+                            if !container.state.dirty {
+                                print("🌜update", id)
+                                container.state.dirty = true
+                                self.emitter.objectWillChange.send(container.value)
+                            }
                         }
                     }
                 }
@@ -103,7 +108,6 @@ private final class Emitter<Value: AnyObject>: ObservableObject {
 
 private final class Container<Value: AnyObject> {
     var value: Value
-    private(set) var uuid = UUID()
     private(set) var tracker = Tracker()
     private(set) var state = ObservingState()
 
@@ -137,7 +141,7 @@ private final class Tracker {
     init() {}
 
     deinit {
-        print("Tracker deinit", id)
+         print("Tracker deinit", id)
 
         if isRunning {
             isRunning = false
@@ -198,7 +202,9 @@ private final class Tracker {
         _ThreadLocal.value = lastOne.previous
 
         if let accessList, lastOne.onChange != nil {
+            let id = self.id
             ObservationTracking._installTracking(accessList) { [weak lastOne, weak self] in
+                print("_installTracking", id)
                 lastOne?.onChange?()
                 self?.trackers.removeAll(where: { $0 === lastOne })
             }
