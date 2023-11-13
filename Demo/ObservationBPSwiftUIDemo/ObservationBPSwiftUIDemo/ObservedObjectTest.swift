@@ -18,27 +18,12 @@ struct ObservedObjectTest: View {
                 count += 1
             }
 
-            CountViewState()
+            CountView1State()
                 .padding()
 
-            CountViewObserved()
+            CountView2State()
                 .padding()
         }
-    }
-}
-
-class StateObjectClass: ObservableObject {
-    let type: String
-    let id: Int
-    @Published var count = 0
-    init(type: String) {
-        self.type = type
-        id = Int.random(in: 0 ... 1000)
-        print("type:\(type) id:\(id) init")
-    }
-
-    deinit {
-        print("type:\(type) id:\(id) deinit")
     }
 }
 
@@ -60,15 +45,12 @@ class StateObjectClass: ObservableObject {
     }
 }
 
-struct CountViewState: View {
-//    @StateObject var state = StateObjectClass(type: "StateObject")
-//    var state = StateObject(wrappedValue: StateObjectClass(type: "StateObject"))
-//    var state = Observing(ObservableClass(type: "StateObject"))
-    @Observing var state = ObservableClass(type: "StateObject")
+struct CountView1State: View {
+    @Observing(id: "Count1") var state = ObservableClass(type: "StateObject")
 
     var body: some View {
         VStack {
-            Text("@StateObject count :\(state.count)")
+            Text("count :\(state.count)")
             Button("+1") {
                 state.count += 1
             }
@@ -76,15 +58,12 @@ struct CountViewState: View {
     }
 }
 
-struct CountViewObserved: View {
-//    @ObservedObject var state = StateObjectClass(type: "Observed")
-//    var state = StateObject(wrappedValue: StateObjectClass(type: "Observed"))
-//    var state = Observing(ObservableClass(type: "Observed"))
-    @Observing var state = ObservableClass(type: "Observed")
+struct CountView2State: View {
+    @Observing(id: "Count2") var state = ObservableClass(type: "StateObject")
 
     var body: some View {
         VStack {
-            Text("@Observed count :\(state.count)")
+            Text("count :\(state.count)")
             Button("+1") {
                 state.count += 1
             }
