@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		944DDADB2B043BAB005145FC /* SomeiOS17View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944DDADA2B043BAB005145FC /* SomeiOS17View.swift */; };
+		944DDADE2B0584AB005145FC /* ObservationBP in Frameworks */ = {isa = PBXBuildFile; productRef = 944DDADD2B0584AB005145FC /* ObservationBP */; };
 		D172801F2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D172801E2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift */; };
 		D17280212A7C010700CDC50B /* ContentViewA.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17280202A7C010700CDC50B /* ContentViewA.swift */; };
 		D17280232A7C010900CDC50B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D17280222A7C010900CDC50B /* Assets.xcassets */; };
@@ -42,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		944DDADA2B043BAB005145FC /* SomeiOS17View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SomeiOS17View.swift; sourceTree = "<group>"; };
 		D172801B2A7C010700CDC50B /* ObservationBPSwiftUIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObservationBPSwiftUIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D172801E2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationBPSwiftUIDemoApp.swift; sourceTree = "<group>"; };
 		D17280202A7C010700CDC50B /* ContentViewA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewA.swift; sourceTree = "<group>"; };
@@ -69,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F7DD7F572AE28226009A5625 /* ObservationBP in Frameworks */,
+				944DDADE2B0584AB005145FC /* ObservationBP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +127,7 @@
 				E4FDB4542AE175F900D755C3 /* ContentViewC.swift */,
 				E4FDB4562AE177C500D755C3 /* ContentViewD.swift */,
 				E4DCE0A92AE18B3600DDBBC9 /* DevView.swift */,
+				944DDADA2B043BAB005145FC /* SomeiOS17View.swift */,
 				D17280222A7C010900CDC50B /* Assets.xcassets */,
 				D17280242A7C010900CDC50B /* Preview Content */,
 			);
@@ -180,6 +185,7 @@
 			name = ObservationBPSwiftUIDemo;
 			packageProductDependencies = (
 				F7DD7F562AE28226009A5625 /* ObservationBP */,
+				944DDADD2B0584AB005145FC /* ObservationBP */,
 			);
 			productName = ObservationBPSwiftUIDemo;
 			productReference = D172801B2A7C010700CDC50B /* ObservationBPSwiftUIDemo.app */;
@@ -253,6 +259,9 @@
 				Base,
 			);
 			mainGroup = D17280122A7C010700CDC50B;
+			packageReferences = (
+				944DDADC2B0584AB005145FC /* XCRemoteSwiftPackageReference "ObservationBP" */,
+			);
 			productRefGroup = D172801C2A7C010700CDC50B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -295,6 +304,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				944DDADB2B043BAB005145FC /* SomeiOS17View.swift in Sources */,
 				D17280212A7C010700CDC50B /* ContentViewA.swift in Sources */,
 				E4FDB4512AE1726900D755C3 /* ContentViewB.swift in Sources */,
 				E4FDB4552AE175F900D755C3 /* ContentViewC.swift in Sources */,
@@ -628,7 +638,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		944DDADC2B0584AB005145FC /* XCRemoteSwiftPackageReference "ObservationBP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:winddpan/ObservationBP.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		944DDADD2B0584AB005145FC /* ObservationBP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 944DDADC2B0584AB005145FC /* XCRemoteSwiftPackageReference "ObservationBP" */;
+			productName = ObservationBP;
+		};
 		F7DD7F562AE28226009A5625 /* ObservationBP */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ObservationBP;

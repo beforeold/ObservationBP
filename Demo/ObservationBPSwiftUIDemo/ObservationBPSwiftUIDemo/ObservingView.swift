@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 import ObservationBP
-import ObservationBPImpl
+
 import SwiftUI
 
 private class ObservationInvalidator: ObservableObject {

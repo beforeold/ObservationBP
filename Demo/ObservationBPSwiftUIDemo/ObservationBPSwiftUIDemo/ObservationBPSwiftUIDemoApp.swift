@@ -21,19 +21,19 @@ struct ObservationBPSwiftUIDemoApp: App {
 struct Page1: View {
     var body: some View {
         VStack {
-            NavigationLink(destination: DevView()) { Text("DevView") }
-                .padding()
-            NavigationLink(destination: ContentViewA()) { Text("@Observation") }
-                .padding()
-            NavigationLink(destination: ContentViewB()) { Text("ObservableObject") }
-                .padding()
-            NavigationLink(destination: ContentViewC()) { Text("ObservingView") }
-                .padding()
-
-            if #available(iOS 17.0, *) {
-                NavigationLink(destination: ContentViewD()) { Text("iOS17 @Observation") }
-                    .padding()
-            }
+//            NavigationLink(destination: DevView()) { Text("DevView") }
+//                .padding()
+//            NavigationLink(destination: ContentViewA()) { Text("@Observation") }
+//                .padding()
+//            NavigationLink(destination: ContentViewB()) { Text("ObservableObject") }
+//                .padding()
+//            NavigationLink(destination: ContentViewC()) { Text("ObservingView") }
+//                .padding()
+//
+//            if #available(iOS 17.0, *) {
+//                NavigationLink(destination: ContentViewD()) { Text("iOS17 @Observation") }
+//                    .padding()
+//            }
         }
     }
 }
