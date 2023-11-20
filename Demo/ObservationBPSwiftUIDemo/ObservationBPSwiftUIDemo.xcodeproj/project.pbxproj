@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84FD72B42B0B2E8E00BFD009 /* EnvironmentTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD72B32B0B2E8E00BFD009 /* EnvironmentTestView.swift */; };
 		D172801F2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D172801E2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift */; };
 		D17280232A7C010900CDC50B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D17280222A7C010900CDC50B /* Assets.xcassets */; };
 		D17280262A7C010900CDC50B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D17280252A7C010900CDC50B /* Preview Assets.xcassets */; };
@@ -51,6 +52,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		84FD72B32B0B2E8E00BFD009 /* EnvironmentTestView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentTestView.swift; sourceTree = "<group>"; };
 		D172801B2A7C010700CDC50B /* ObservationBPSwiftUIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObservationBPSwiftUIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D172801E2A7C010700CDC50B /* ObservationBPSwiftUIDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationBPSwiftUIDemoApp.swift; sourceTree = "<group>"; };
 		D17280222A7C010900CDC50B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 				E4FDB4502AE1726900D755C3 /* ContentView_StateObject.swift */,
 				F79817D72AEF9236008A7E34 /* RefreshableScrollView.swift */,
 				E4DCE0A92AE18B3600DDBBC9 /* DevView.swift */,
+				84FD72B32B0B2E8E00BFD009 /* EnvironmentTestView.swift */,
 				F7F61B352B0220A900F7CF61 /* CompareDemo */,
 				F7F61B322B02136000F7CF61 /* ObservedObjectTest */,
 				F79817D92AEF93B1008A7E34 /* RrefreshScrollTestView.swift */,
@@ -362,6 +365,7 @@
 				F7F61B3B2B0220F300F7CF61 /* CompareDemo_ObservationBP.swift in Sources */,
 				F7F61B312B020A0A00F7CF61 /* ContentView_Observation.swift in Sources */,
 				E4DCE0AA2AE18B3600DDBBC9 /* DevView.swift in Sources */,
+				84FD72B42B0B2E8E00BFD009 /* EnvironmentTestView.swift in Sources */,
 				F7F61B3F2B02210A00F7CF61 /* CompareDemo_StateObject.swift in Sources */,
 				F79817D82AEF9236008A7E34 /* RefreshableScrollView.swift in Sources */,
 			);
@@ -524,12 +528,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ObservationBPSwiftUIDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = GKJ5MCW5T5;
+				DEVELOPMENT_TEAM = WS8S43M437;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -545,7 +548,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onevcat.ObservationBPSwiftUIDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = match_development_wildcard_group1;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -557,12 +559,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ObservationBPSwiftUIDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = GKJ5MCW5T5;
+				DEVELOPMENT_TEAM = WS8S43M437;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -578,7 +579,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onevcat.ObservationBPSwiftUIDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = match_development_wildcard_group1;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
