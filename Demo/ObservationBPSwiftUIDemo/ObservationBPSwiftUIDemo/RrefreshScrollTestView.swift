@@ -46,7 +46,7 @@ struct RrefreshScrollTestView: View {
             RefreshableScrollView {
                 LazyVStack {
                     ForEach(wrapper.list, id: \.self) { item in
-                        Text(item)
+                      Text(item)
                             .padding(5)
                     }
                 }

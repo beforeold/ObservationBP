@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  EnvironmentTestView.swift
 //
 //
 //  Created by beforeold on 11/20/23.
@@ -14,24 +14,24 @@ import ObservationBP
   var isPresented = false
 }
 
-struct TestEnvKey: EnvironmentKey {
+struct SettingsKey: EnvironmentKey {
   static var defaultValue: TestEnvModel = .init()
 }
 
 extension EnvironmentValues {
-  var testEnv: TestEnvModel {
+  var settings: TestEnvModel {
     get {
-      self[TestEnvKey.self]
+      self[SettingsKey.self]
     }
 
     set {
-      self[TestEnvKey.self] = newValue
+      self[SettingsKey.self] = newValue
     }
   }
 }
 
 struct TestEnvSubView: View {
-  @Environment(\.testEnv) var model
+  @Environment(\.settings) var model
 
   var body: some View {
     ObservationView {
@@ -69,7 +69,7 @@ struct EnvironmentTestView: View {
 
   var body: some View {
     TestEnvSubView()
-      .environment(\.testEnv, model)
+      .environment(\.settings, model)
   }
 }
 
