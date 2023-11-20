@@ -31,14 +31,14 @@ public struct ObservationView<Content: View>: View {
 
 @propertyWrapper
 @dynamicMemberLookup
-public struct Bindable<Value> where Value: AnyObject, Value: Observable {
+public struct BindableBP<Value> where Value: AnyObject, Value: Observable {
   public var wrappedValue: Value
 
   public init(wrappedValue: Value) {
     self.wrappedValue = wrappedValue
   }
 
-  public var projectedValue: Bindable<Value> {
+  public var projectedValue: BindableBP<Value> {
     self
   }
 
