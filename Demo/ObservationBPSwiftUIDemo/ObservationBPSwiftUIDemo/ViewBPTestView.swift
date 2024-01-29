@@ -26,7 +26,23 @@ struct ViewBPTestView: ViewBP {
   }
 }
 
+struct ViewBPTestViewUsingModier: View {
+  let model: ViewBPModel = .init()
+
+  var body: some View {
+    VStack {
+      Text("name: \(model.name)")
+
+      Button("change name") {
+        model.name = "beforeold"
+      }
+    }
+    .withObservation()
+  }
+}
+
+
 #Preview {
-  ViewBPTestView()
+  ViewBPTestViewUsingModier()
     .preferredColorScheme(.dark)
 }

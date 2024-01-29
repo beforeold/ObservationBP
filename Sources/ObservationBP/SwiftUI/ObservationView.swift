@@ -28,3 +28,34 @@ public struct ObservationView<Content: View>: View {
     }
   }
 }
+
+public extension View {
+  func withObservation() -> some View {
+    let modifier = ObservationViewModifier {
+      self
+    }
+    return self.modifier(modifier)
+  }
+}
+
+public struct ObservationViewModifier<Content2: View>: ViewModifier {
+
+  @State private var token: Int = 0
+
+  private let contentMaker: () -> Content2
+
+  public init(
+    @ViewBuilder _ contentMaker: @escaping () -> Content2
+  ) {
+    self.contentMaker = contentMaker
+  }
+
+  public func body(content: Content) -> some View {
+    _ = token
+    return withObservationTracking {
+      contentMaker()
+    } onChange: {
+      token += 1
+    }
+  }
+}
