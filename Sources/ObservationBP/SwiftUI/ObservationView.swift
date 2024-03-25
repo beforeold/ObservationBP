@@ -23,8 +23,18 @@ public struct ObservationView<Content: View>: View {
     _ = token
     return withObservationTracking {
       content()
-    } onChange: {
-      token += 1
+    } onChange: { [_token = UncheckedSendable(self._token)] in
+      _token.value.wrappedValue += 1
     }
+  }
+}
+
+/// inspired by swift-perceptiable
+/// Support explicit animations in SwiftUI by mbrandonw · Pull Request #52 · pointfreeco/swift-perception
+/// https://github.com/pointfreeco/swift-perception/pull/52/commits
+private struct UncheckedSendable<A>: @unchecked Sendable {
+  let value: A
+  init(_ value: A) {
+    self.value = value
   }
 }
