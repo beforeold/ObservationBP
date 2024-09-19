@@ -1,12 +1,16 @@
 
-![Demo](https://github.com/winddpan/ObservationBP/blob/master/Demo/ObservationBPSwiftUIDemo/Demo.gif?raw=true)
+# Description
+ObservationBP wraps swift-percetion for a better code indentation
 
-## Sample
+## How to use
+User ```ViewBP``` protocol and ```bodyBP``` instead of WithPerceptionTracking
+
 ``` Swift
 import ObservationBP
 import SwiftUI
 
-@Observable final class Person {
+@Perceptible
+final class Person {
     var name: String
     var age: Int
 
@@ -16,43 +20,18 @@ import SwiftUI
     }
 }
 
-struct ContentView: View {
-    @Observing var person: Person = Person(name: "name", age: 1)
+struct ContentView: ViewBP {
+    var person: Person = Person(name: "name", age: 1)
 
-    var body: some View {
+    var bodyBP: some View {
         VStack {
-            PersonNameView(person: person)
-            PersonAgeView(person: person)
+            Text("Hello, \(person.name)")
         }
     }
 }
 
-private struct PersonNameView: View {
-    @Observing var person: Person
-
-    var body: some View {
-        Text(person.name)
-            .foregroundColor(Color(
-                red: .random(in: 0 ... 1),
-                green: .random(in: 0 ... 1),
-                blue: .random(in: 0 ... 1)
-            ))
-    }
-}
-
-private struct PersonAgeView: View {
-    @Observing var person: Person
-
-    var body: some View {
-        Text("age \(person.age)")
-            .foregroundColor(Color(
-                red: .random(in: 0 ... 1),
-                green: .random(in: 0 ... 1),
-                blue: .random(in: 0 ... 1)
-            ))
-    }
-}
 ```
 
-## Based on
- [swift-perception](https://github.com/pointfreeco/swift-perception)
+## Acknowledgement
+Great backporting of Observation framework
+[swift-perception](https://github.com/pointfreeco/swift-perception)
