@@ -5,46 +5,34 @@ import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "ObservationBP",
-    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
-    products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "ObservationBP",
-            targets: ["ObservationBP"]
-        ),
-    ],
-    dependencies: [
-        // Depend on the Swift 5.9 release of SwiftSyntax
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
-    ],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        // Macro implementation that performs the source transformation of a macro.
-        .macro(
-            name: "ObservationBPMacros",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            ]
-        ),
+  name: "ObservationBP",
+  platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
+  products: [
+    // Products define the executables and libraries a package produces, making them visible to other packages.
+    .library(
+      name: "ObservationBP",
+      targets: ["ObservationBP"]
+    ),
+  ],
+  dependencies: [
+    .package(url: "https://github.com/pointfreeco/swift-perception.git", .upToNextMajor(from: "1.3.5"))
+  ],
+  targets: [
 
-        .binaryTarget(name: "ObservationBPLock",
-                      path: "Sources/ObservationBPLock/ObservationBPLock.xcframework"),
+    // Library that exposes a macro as part of its API, which is used in client programs.
+    .target(
+      name: "ObservationBP",
+      dependencies: [
+        .product(name: "Perception", package: "swift-perception")
+      ]
+    ),
 
-        // Library that exposes a macro as part of its API, which is used in client programs.
-        .target(name: "ObservationBP", dependencies: ["ObservationBPLock",
-                                                      "ObservationBPMacros"]),
-
-        // A test target used to develop the macro implementation.
-        .testTarget(
-            name: "ObservationBPTests",
-            dependencies: [
-                "ObservationBPMacros",
-                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
-            ]
-        ),
-    ]
+    // A test target used to develop the macro implementation.
+    .testTarget(
+      name: "ObservationBPTests",
+      dependencies: [
+        "ObservationBP"
+      ]
+    ),
+  ]
 )
