@@ -2,7 +2,8 @@
 # Description
 ObservationBP wraps swift-percetion for a better code indentation
 
-## How to use
+# How to use
+## ViewBP
 User ```ViewBP``` protocol and ```bodyBP``` instead of WithPerceptionTracking
 
 ``` Swift
@@ -31,6 +32,9 @@ struct ContentView: ViewBP {
 }
 
 ```
+
+## OCObserableBP
+use the wrapper for Objective-C classes
 
 ## Acknowledgement
 Great backporting of Observation framework
