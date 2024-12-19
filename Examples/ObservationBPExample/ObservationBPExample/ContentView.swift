@@ -15,13 +15,15 @@ public struct ContentView: View {
     var sections: [[Option]] = [
       [.first],
       [.second],
-      []
+      [],
     ]
 
     init() {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-        //      self.append()
-      })
+      DispatchQueue.main.asyncAfter(
+        deadline: .now() + 1,
+        execute: {
+          //      self.append()
+        })
     }
 
     func append() {
