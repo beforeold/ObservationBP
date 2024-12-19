@@ -8,9 +8,11 @@ extension NSObject: @retroactive Perceptible {
 
 @Perceptible
 @dynamicMemberLookup
-public class OCObservableBP<Base: NSObject> {
+open class OCObservableBP<Base: NSObject> {
   @PerceptionIgnored
   private var observationsKVO: [AnyKeyPath: NSKeyValueObservation] = [:]
+
+  private let enablesKVO: Bool
 
   public var wrappedValue: Base {
     didSet {
@@ -20,7 +22,8 @@ public class OCObservableBP<Base: NSObject> {
 
   private let _$observationRegistrarForBase = Perception.PerceptionRegistrar()
 
-  public init(wrappedValue: Base) {
+  public init(wrappedValue: Base, enablesKVO: Bool = true) {
+    self.enablesKVO = enablesKVO
     self.wrappedValue = wrappedValue
   }
 
@@ -30,7 +33,7 @@ public class OCObservableBP<Base: NSObject> {
     get {
       accessForBase(keyPath: keyPath)
 
-      if observationsKVO[keyPath] == nil {
+      if enablesKVO, observationsKVO[keyPath] == nil {
         let obs = wrappedValue.observe(keyPath, options: .new) { [weak self] _, _ in
           guard let self else { return }
 
