@@ -2,4 +2,4 @@ import Foundation
 import Perception
 import SwiftUI
 
-public typealias ObservationView = WithPerceptionTracking
+public typealias ObservationView<Content: View> = WithPerceptionTracking<Content>
