@@ -1,10 +1,3 @@
-//
-//  ViewBP.swift
-//
-//
-//  Created by Brook_Mobius on 11/20/23.
-//
-
 import SwiftUI
 
 public protocol ViewBP: View {
