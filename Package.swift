@@ -20,7 +20,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-perception.git", .upToNextMajor(from: "1.3.5"))
+    .package(url: "https://github.com/pointfreeco/swift-perception.git", from: "1.3.5")
   ],
   targets: [
 
